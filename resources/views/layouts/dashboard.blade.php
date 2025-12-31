@@ -115,10 +115,30 @@
                             <small class="text-muted">Upcoming Appointments</small>
                             <div class="fw-bold">{{ auth()->user()->appointments()->where('date', '>=', now())->count() }}</div>
                         </div>
-                        <div class="mb-2">
-                            <small class="text-muted">Completed</small>
-                            <div class="fw-bold">{{ auth()->user()->appointments()->where('status', 'completed')->count() }}</div>
-                        </div>
+                       <div class="mb-2">
+    <small class="text-muted">Upcoming Appointments</small>
+    <div class="fw-bold">
+        @php
+            try {
+                echo auth()->user()->appointments()->where('date', '>=', now())->count();
+            } catch (\Exception $e) {
+                echo '0';
+            }
+        @endphp
+    </div>
+</div>
+<div class="mb-2">
+    <small class="text-muted">Completed</small>
+    <div class="fw-bold">
+        @php
+            try {
+                echo auth()->user()->appointments()->where('status', 'completed')->count();
+            } catch (\Exception $e) {
+                echo '0';
+            }
+        @endphp
+    </div>
+</div>
                     </div>
                 </div>
             </nav>

@@ -183,6 +183,18 @@
                 </div>
                 
                 <!-- Booking Form -->
+
+            <!-- Add this after the form opening tag -->
+@guest
+<div class="alert alert-warning mb-3">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    <strong>Login Required:</strong> You need to 
+    <a href="{{ route('login') }}" class="alert-link">login</a> or 
+    <a href="{{ route('register') }}" class="alert-link">register</a> 
+    to book an appointment.
+</div>
+@endguest
+
                 <form action="{{ route('booking.book') }}" method="POST" id="bookingForm">
                     @csrf
                     <input type="hidden" name="service_id" value="{{ $service->id }}">
@@ -197,7 +209,8 @@
                     </div>
                     
                     <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-success btn-lg" disabled id="bookButton">
+                      <button type="submit" class="btn btn-success btn-lg" 
+        {{ auth()->check() ? '' : 'disabled' }} id="bookButton">
                             <i class="fas fa-calendar-check me-2"></i> Confirm Booking
                         </button>
                         

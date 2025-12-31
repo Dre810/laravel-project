@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,7 +15,7 @@ use App\Http\Controllers\BookingController;
 |
 */
 
-// Public Booking Routes
+// Public routes (no login required)
 Route::get('/', function () {
     return view('booking.welcome');
 })->name('home');
@@ -28,14 +29,24 @@ Route::get('/booking/staff/{service}', [BookingController::class, 'showStaff'])
 Route::get('/booking/slots/{service}/{staff}', [BookingController::class, 'showSlots'])
     ->name('booking.slots');
 
-Route::post('/booking/book', [BookingController::class, 'bookAppointment'])
-    ->name('booking.book');
+// Protected routes (login required)
+Route::middleware('auth')->group(function () {
+    // Booking submission requires login
+    Route::post('/booking/book', [BookingController::class, 'bookAppointment'])
+        ->name('booking.book');
+    
+    // User dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard');
+    
+    // User appointments
+    Route::get('/appointments', [DashboardController::class, 'appointments'])
+        ->name('appointments');
+    
+    // Cancel appointment
+    Route::post('/appointments/{appointment}/cancel', [DashboardController::class, 'cancelAppointment'])
+        ->name('appointments.cancel');
+});
 
-// Simple login/logout routes (without laravel/ui package)
-Route::get('/login', function () {
-    return 'Login page - We\'ll build this later';
-})->name('login');
-
-Route::get('/register', function () {
-    return 'Register page - We\'ll build this later';
-})->name('register');
+// Laravel Breeze routes (keep these at the end)
+require __DIR__.'/auth.php';

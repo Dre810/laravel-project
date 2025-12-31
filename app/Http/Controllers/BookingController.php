@@ -54,35 +54,37 @@ public function showSlots(Service $service, Staff $staff, Request $request)
     
     // Step 4: Book the appointment
     public function bookAppointment(Request $request)
-    {
-        // Validate the request
-        $validated = $request->validate([
-            'service_id' => 'required|exists:services,id',
-            'staff_id' => 'required|exists:staff,id',
-            'date' => 'required|date',
-            'time' => 'required|date_format:H:i',
-            'notes' => 'nullable|string|max:500',
-        ]);
-        
-        // Load the service so we can access its duration
-        $service = Service::findOrFail($validated['service_id']);
-        
-        // Calculate start and end times using the service duration
-        $start = Carbon::parse($validated['time']);
-        $end = (clone $start)->addMinutes($service->duration);
-        
-        // Create appointment
-        $appointment = Appointment::create([
-            'client_id' => Auth::id() ?? 1, // Default to user ID 1 if not logged in
-            'service_id' => $validated['service_id'],
-            'staff_id' => $validated['staff_id'],
-            'date' => $validated['date'],
-            'start_time' => $start->format('H:i'),
-            'end_time' => $end->format('H:i'),
-            'status' => 'pending',
-            'notes' => $validated['notes'] ?? null,
-        ]);
-        
-        return redirect()->route('home')->with('success', 'Appointment booked successfully!');
+{
+    // Make sure user is logged in
+    if (!Auth::check()) {
+        return redirect()->route('login')->with('error', 'Please login to book an appointment.');
     }
+    
+    // Validate the request
+    $validated = $request->validate([
+        'service_id' => 'required|exists:services,id',
+        'staff_id' => 'required|exists:staff,id',
+        'date' => 'required|date',
+        'time' => 'required|date_format:H:i',
+        'notes' => 'nullable|string|max:500',
+    ]);
+    
+    // Get service to calculate end time
+    $service = Service::find($validated['service_id']);
+    
+    // Create appointment
+    $appointment = Appointment::create([
+        'client_id' => Auth::id(), // Use logged-in user's ID
+        'service_id' => $validated['service_id'],
+        'staff_id' => $validated['staff_id'],
+        'date' => $validated['date'],
+        'start_time' => $validated['time'],
+        'end_time' => \Carbon\Carbon::parse($validated['time'])
+            ->addMinutes($service->duration),
+        'status' => 'pending',
+        'notes' => $validated['notes'] ?? null,
+    ]);
+    
+    return redirect()->route('dashboard')->with('success', 'Appointment booked successfully!');
+}
 }

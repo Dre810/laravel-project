@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,6 +43,19 @@ Route::middleware('auth')->group(function () {
     // User appointments
     Route::get('/appointments', [DashboardController::class, 'appointments'])
         ->name('appointments');
+
+        // Payment routes
+Route::get('/appointments/{appointment}/payment', [PaymentController::class, 'show'])
+    ->name('payment.show');
+    
+Route::post('/appointments/{appointment}/checkout', [PaymentController::class, 'checkout'])
+    ->name('payment.checkout');
+    
+Route::get('/payment/success/{appointment}', [PaymentController::class, 'success'])
+    ->name('payment.success');
+    
+Route::get('/payment/cancel/{appointment}', [PaymentController::class, 'cancel'])
+    ->name('payment.cancel');
     
     // Cancel appointment
     Route::post('/appointments/{appointment}/cancel', [DashboardController::class, 'cancelAppointment'])

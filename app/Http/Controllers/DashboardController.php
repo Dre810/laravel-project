@@ -62,25 +62,31 @@ class DashboardController extends Controller
     }
     
     // Cancel an appointment
-    public function cancelAppointment(Request $request, Appointment $appointment)
-    {
-        // Check if user owns this appointment
-        if ($appointment->client_id !== auth()->id()) {
-            abort(403, 'Unauthorized action.');
-        }
-        
-        // Check if appointment can be cancelled (not in the past)
-        $appointmentDateTime = $appointment->date . ' ' . $appointment->start_time;
-        if (Carbon::parse($appointmentDateTime)->isPast()) {
-            return back()->with('error', 'Cannot cancel past appointments.');
-        }
-        
-        // Update appointment status
-        $appointment->update([
-            'status' => 'cancelled',
-            'cancelled_at' => now(),
-        ]);
-        
-        return back()->with('success', 'Appointment cancelled successfully.');
+   // Cancel an appointment
+public function cancelAppointment(Request $request, Appointment $appointment)
+{
+    // Check if user owns this appointment
+    if ($appointment->client_id !== auth()->id()) {
+        abort(403, 'Unauthorized action.');
     }
+    
+  // Check if appointment can be cancelled (not in the past)
+// Simple check: if date is today or in the future
+if ($appointment->date->isPast() && $appointment->date->isSameDay(now())) {
+    // If same day, check time
+    if (now()->format('H:i') > $appointment->start_time) {
+        return back()->with('error', 'Cannot cancel past appointments.');
+    }
+} elseif ($appointment->date->isPast()) {
+    return back()->with('error', 'Cannot cancel past appointments.');
+}
+    
+    // Update appointment status
+    $appointment->update([
+        'status' => 'cancelled',
+        'cancelled_at' => now(),
+    ]);
+    
+    return back()->with('success', 'Appointment cancelled successfully.');
+}
 }

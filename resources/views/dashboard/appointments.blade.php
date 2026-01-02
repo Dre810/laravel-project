@@ -73,16 +73,17 @@
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Service</th>
-                                    <th>Professional</th>
-                                    <th>Date & Time</th>
-                                    <th>Status</th>
-                                    <th>Amount</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
+    <tr>
+        <th>ID</th>
+        <th>Service</th>
+        <th>Professional</th>
+        <th>Date & Time</th>
+        <th>Status</th>
+        <th>Payment</th>
+        <th>Amount</th>
+        <th>Actions</th>
+    </tr>
+</thead>
                             <tbody>
                                 @foreach($appointments as $appointment)
                                 <tr>
@@ -114,6 +115,27 @@
                                             <small class="text-danger">(Past)</small>
                                         @endif
                                     </td>
+
+                                <td>
+    @if($appointment->is_paid)
+        <span class="badge bg-success">
+            <i class="fas fa-check me-1"></i> Paid
+        </span>
+    @elseif($appointment->status === 'pending')
+        <span class="badge bg-warning">
+            <i class="fas fa-clock me-1"></i> Payment Pending
+        </span>
+        <br>
+        <a href="{{ route('payment.show', $appointment) }}" class="small">
+            Complete Payment
+        </a>
+    @else
+        <span class="badge bg-secondary">
+            <i class="fas fa-times me-1"></i> Not Paid
+        </span>
+    @endif
+</td>
+
                                     <td>
                                         ${{ $appointment->service->price }}
                                         <br>

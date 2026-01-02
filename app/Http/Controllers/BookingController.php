@@ -85,6 +85,7 @@ public function showSlots(Service $service, Staff $staff, Request $request)
         'notes' => $validated['notes'] ?? null,
     ]);
     
-    return redirect()->route('dashboard')->with('success', 'Appointment booked successfully!');
+    return redirect()->route('payment.show', $appointment)
+    ->with('success', 'Appointment created! Please complete payment to confirm.');
 }
 }

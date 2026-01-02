@@ -53,6 +53,12 @@ class User extends Authenticatable
         return $this->hasMany(Appointment::class, 'client_id');
     }
 
+    // Get all payments for this user
+public function payments(): HasMany
+{
+    return $this->hasMany(Payment::class);
+}
+
     /**
      * Get upcoming appointments.
      */

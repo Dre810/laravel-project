@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Carbon\Carbon;
 
 class Appointment extends Model
 {
@@ -25,9 +26,11 @@ class Appointment extends Model
 
     // Cast fields
     protected $casts = [
-        'date' => 'date',
-        'reminder_sent' => 'boolean'
-    ];
+    'date' => 'date',  // This casts to Carbon instance
+    'start_time' => 'datetime:H:i:s',
+    'end_time' => 'datetime:H:i:s',
+    'reminder_sent' => 'boolean'
+];
 
     // Relationship: Appointment belongs to a client (User)
     public function client()
@@ -59,10 +62,23 @@ class Appointment extends Model
         };
     }
 
-    // Helper: Check if appointment is in the past
-    public function getIsPastAttribute()
-    {
-        $appointmentDateTime = $this->date->format('Y-m-d') . ' ' . $this->start_time;
-        return now() > $appointmentDateTime;
-    }
+ // Helper: Check if appointment is in the past
+public function getIsPastAttribute()
+{
+    // Combine date and start_time properly
+    $appointmentDateTime = Carbon::parse($this->date->format('Y-m-d') . ' ' . $this->start_time);
+    return now() > $appointmentDateTime;
+}
+
+    // Relationship: Appointment has one payment
+public function payment()
+{
+    return $this->hasOne(Payment::class);
+}
+
+// Check if appointment is paid
+public function getIsPaidAttribute()
+{
+    return $this->payment && $this->payment->isSuccessful();
+}
 }

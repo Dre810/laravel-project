@@ -34,6 +34,14 @@ class PaymentController extends Controller
     // Create Stripe checkout session
     public function checkout(Request $request, Appointment $appointment)
     {
+
+
+        // Check if Stripe keys are configured
+    if (empty(config('services.stripe.key')) || empty(config('services.stripe.secret'))) {
+        return response()->json([
+            'error' => 'Stripe is not configured. Please add Stripe API keys to .env file.'
+        ], 500);
+    }
         // Check if user owns this appointment
         if ($appointment->client_id !== auth()->id()) {
             return response()->json(['error' => 'Unauthorized'], 403);

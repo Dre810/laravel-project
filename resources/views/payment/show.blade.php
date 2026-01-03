@@ -43,7 +43,16 @@
 @endsection
 
 @section('content')
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+<!-- Test Mode Warning -->
+@if(Str::startsWith(config('services.stripe.key'), 'pk_test_'))
+<div class="alert alert-warning">
+    <i class="fas fa-vial me-2"></i>
+    <strong>TEST MODE:</strong> You're using Stripe test mode. 
+    Use test card: <code>4242 4242 4242 4242</code> with any future expiry, CVC, and ZIP.
+</div>
+@endif
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap 
+align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2">Complete Payment</h1>
     <div class="btn-toolbar mb-2 mb-md-0">
         <a href="{{ route('appointments') }}" class="btn btn-outline-secondary">
@@ -208,9 +217,17 @@
 <script src="https://js.stripe.com/v3/"></script>
 
 <script>
+  // Check if Stripe key is configured
+@if(!empty(config('services.stripe.key')))
     // Get Stripe publishable key
     const stripe = Stripe('{{ config("services.stripe.key") }}');
     const elements = stripe.elements();
+@else
+    // Show error if no Stripe key
+    document.addEventListener('DOMContentLoaded', function() {
+        alert('Stripe is not configured. Please contact administrator.');
+    });
+@endif
     
     // Create card element
     const cardElement = elements.create('card', {
